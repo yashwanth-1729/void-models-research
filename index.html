@@ -308,6 +308,48 @@ figure.chart figcaption { font-size: var(--step--1); color: var(--muted); margin
 h4.pc-h { margin-top: 0; }
 
 </style>
+<style id="vm-mobile">
+/* Phone layout: stacked table cards, readable swipeable charts, 16px inputs (no iOS zoom), 40px tap targets. */
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .block { padding-block: 36px 4px; scroll-margin-top: 60px; }
+  .block > h2 { font-size: 1.55rem; }
+  .block h3 { font-size: 1.18rem; margin-top: 30px; }
+  .lead { font-size: 1.05rem; }
+  .hero { padding-block: 22px 22px; gap: 22px; }
+  .hero h1 { font-size: 2rem; }
+  .hero .sub { font-size: 1.02rem; margin-bottom: 18px; }
+  .cta-row .btn { flex: 1 1 auto; text-align: center; }
+  .figure .num { font-size: 1.3rem; }
+  input, select, textarea, .search, .toc-select, .field input[type="number"], .field select { font-size: 16px !important; }
+  .toc-select { min-height: 40px; }
+  .chipbtn, .seg button { min-height: 40px; padding-left: 14px; padding-right: 14px; }
+  .seg { display: flex; width: 100%; }
+  .seg button { flex: 1 1 auto; }
+  details.more > summary { padding-top: 14px; padding-bottom: 14px; }
+  .calc { padding: 14px; gap: 18px; }
+  .outputs { gap: 14px 12px; }
+  .out .v { font-size: 1.28rem; }
+  pre.formula { font-size: 0.76rem; padding: 12px; }
+  .panel, .callout { padding: 14px; }
+  figure.chart { padding: 12px; }
+  figure.chart .chart-scroll svg { min-width: 680px; }
+  figure.chart:has(.chart-scroll svg)::before { content: "Swipe sideways to see the whole drawing"; display: block; font-size: 0.78rem; color: var(--muted); margin: 0 0 8px; }
+  table.data.vm-stack { min-width: 0 !important; }
+  table.vm-stack, table.vm-stack tbody, table.vm-stack tr, table.vm-stack td { display: block; width: auto; }
+  table.vm-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  table.vm-stack tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  table.vm-stack tbody tr:last-child { border-bottom: 0; }
+  table.vm-stack td { border: 0 !important; padding: 3px 0; display: grid; grid-template-columns: minmax(0, 38%) minmax(0, 1fr); gap: 10px; }
+  table.vm-stack td::before { content: attr(data-label); color: var(--muted); font-size: 0.76rem; font-weight: 600; line-height: 1.5; }
+  table.vm-stack td:first-child { display: block; font-weight: 600; font-size: 0.98rem; padding-bottom: 6px; }
+  table.vm-stack td:first-child::before, table.vm-stack td[data-label=""]::before { content: none; }
+  table.vm-stack td[data-label=""] { display: block; }
+  table.vm-stack .vm-v { min-width: 0; overflow-wrap: anywhere; }
+  .table-wrap { overflow-x: hidden; }
+  .table-wrap:has(table.data:not(.vm-stack)) { overflow-x: auto; }
+}
+</style>
 </head>
 <body>
 
@@ -3212,5 +3254,23 @@ interaction    = TS - BS - T0 + B0</pre>
 
 </script>
 
+<script>
+(function () {
+  document.querySelectorAll("table.data").forEach(function (t) {
+    var heads = Array.prototype.map.call(t.querySelectorAll("thead th"), function (th) { return th.textContent.trim(); });
+    if (heads.length < 4) return;
+    t.classList.add("vm-stack");
+    t.querySelectorAll("tbody tr").forEach(function (tr) {
+      Array.prototype.forEach.call(tr.cells, function (td, i) {
+        td.setAttribute("data-label", heads[i] || "");
+        if (i === 0 || td.querySelector(":scope > .vm-v")) return;
+        var v = document.createElement("span"); v.className = "vm-v";
+        while (td.firstChild) v.appendChild(td.firstChild);
+        td.appendChild(v);
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
